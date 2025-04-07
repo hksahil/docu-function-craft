@@ -1,4 +1,3 @@
-
 import { PythonFunction, PythonParameter } from "@/types/pythonTypes";
 import { DocumentationParameter } from "./types";
 
@@ -17,6 +16,21 @@ export function analyzeParameters(params: PythonParameter[], func?: PythonFuncti
       const docDescription = paramDescriptions[param.name];
       
       if (docDescription) {
+        // Extract type from docstring if available (e.g., "df (pd.DataFrame): Description")
+        const typeMatch = docDescription.match(/^\(([^)]+)\):/);
+        
+        // If we found a type in the description, use it and clean up the description
+        if (typeMatch && typeMatch[1]) {
+          typeStr = typeMatch[1];
+          const cleanedDescription = docDescription.replace(/^\([^)]+\):/, '').trim();
+          
+          return {
+            name: param.name,
+            type: typeStr,
+            description: cleanedDescription + (param.isOptional ? ` (optional, default: ${param.default})` : '')
+          };
+        }
+        
         return {
           name: param.name,
           type: typeStr,
@@ -44,13 +58,20 @@ function extractParamDescriptionsFromDocstring(docstring: string): Record<string
   
   if (argsMatch && argsMatch[1]) {
     const argsSection = argsMatch[1];
-    // Match parameter patterns like "param_name (type): description"
-    const paramRegex = /\n\s*([a-zA-Z0-9_]+)(?:\s*\(([^)]+)\))?:\s*([\s\S]*?)(?=\n\s*[a-zA-Z0-9_]+(?:\s*\([^)]+\))?:|\n\s*\n|\n\s*$|$)/g;
+    
+    // Updated regex to capture the entire parameter pattern including type in parentheses
+    // Match patterns like: "param_name (type): description" or "param_name: description"
+    const paramRegex = /\n\s*([a-zA-Z0-9_]+)(\s*\([^)]+\))?:\s*([\s\S]*?)(?=\n\s*[a-zA-Z0-9_]+(?:\s*\([^)]+\))?:|\n\s*\n|\n\s*$|$)/g;
     
     let match;
     while ((match = paramRegex.exec(argsSection)) !== null) {
-      const [_, paramName, _paramType, description] = match;
-      paramDescriptions[paramName] = description.trim();
+      const [_, paramName, paramType, description] = match;
+      // If we have a type in parentheses, include it with the description
+      if (paramType) {
+        paramDescriptions[paramName] = `${paramType}:${description.trim()}`;
+      } else {
+        paramDescriptions[paramName] = description.trim();
+      }
     }
   }
   
