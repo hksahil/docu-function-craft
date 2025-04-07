@@ -11,15 +11,15 @@ export const downloadAsWord = async (
     // Dynamically import the docx library
     const docx = await import('docx');
     
-    // Define numbering for steps
+    // Define numbering for steps using the correct LevelFormat enum
     const numbering = {
       reference: "steps-numbering",
       levels: [
         {
           level: 0,
-          format: "decimal",
+          format: docx.LevelFormat.DECIMAL,
           text: "%1.",
-          alignment: "start",
+          alignment: docx.AlignmentType.START,
           style: {
             run: { bold: true }
           }
