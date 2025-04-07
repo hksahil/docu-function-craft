@@ -158,36 +158,6 @@ export function downloadAsWord(pythonFunctions: PythonFunction[], selectedFuncti
             spacing: {
               line: 360,
             },
-            border: {
-              top: {
-                color: "EEEEEE",
-                space: 8,
-                style: docx.BorderStyle.SINGLE,
-                size: 8,
-              },
-              bottom: {
-                color: "EEEEEE",
-                space: 8,
-                style: docx.BorderStyle.SINGLE,
-                size: 8,
-              },
-              left: {
-                color: "EEEEEE",
-                space: 8,
-                style: docx.BorderStyle.SINGLE,
-                size: 8,
-              },
-              right: {
-                color: "EEEEEE",
-                space: 8,
-                style: docx.BorderStyle.SINGLE,
-                size: 8,
-              },
-            },
-            shading: {
-              type: docx.ShadingType.SOLID,
-              color: "F8F8F8",
-            },
           },
         },
       ],
