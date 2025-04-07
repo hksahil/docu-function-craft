@@ -1,7 +1,7 @@
 
 import { PythonFunction } from "@/types/pythonTypes";
 
-export function generateFunctionality(func: PythonFunction): string[] {
+export function analyzeFunctionality(func: PythonFunction): string[] {
   // Basic analysis of code to determine functionality
   const code = func.code.toLowerCase();
   const functionality: string[] = [];

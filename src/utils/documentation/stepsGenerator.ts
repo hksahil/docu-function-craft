@@ -1,7 +1,7 @@
 
 import { PythonFunction } from "@/types/pythonTypes";
 
-export function generateProcessingSteps(func: PythonFunction): string[] {
+export function generateSteps(func: PythonFunction): string[] {
   const code = func.code;
   const lines = code.split('\n').map(line => line.trim()).filter(line => line);
   

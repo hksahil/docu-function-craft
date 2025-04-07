@@ -2,7 +2,7 @@
 import { PythonParameter } from "@/types/pythonTypes";
 import { DocumentationParameter } from "./types";
 
-export function generateParameterDescriptions(params: PythonParameter[]): DocumentationParameter[] {
+export function analyzeParameters(params: PythonParameter[]): DocumentationParameter[] {
   return params.map(param => {
     // Convert parameter name to a readable description
     const nameWords = param.name.split('_');
