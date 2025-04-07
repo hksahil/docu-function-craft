@@ -11,7 +11,27 @@ export const downloadAsWord = async (
     // Dynamically import the docx library
     const docx = await import('docx');
     
-    // Create document
+    // Define numbering for steps
+    const numbering = {
+      config: [
+        {
+          reference: "steps-numbering",
+          levels: [
+            {
+              level: 0,
+              format: "decimal",
+              text: "%1.",
+              alignment: "start",
+              style: {
+                run: { bold: true }
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    // Create document with the appropriate structure
     const doc = new docx.Document({
       sections: [{
         properties: {},
@@ -145,27 +165,12 @@ export const downloadAsWord = async (
             ],
             spacing: { after: 200 }
           })
-        ],
-        numbering: {
-          config: [
-            {
-              reference: "steps-numbering",
-              levels: [
-                {
-                  level: 0,
-                  format: "decimal",
-                  text: "%1.",
-                  alignment: "start",
-                  style: {
-                    run: { bold: true }
-                  }
-                }
-              ]
-            }
-          ]
-        }
+        ]
       }]
     });
+
+    // Set up numbering for the document
+    doc.createNumbering(numbering);
 
     // Generate the document as a blob and save it
     const blob = await docx.Packer.toBlob(doc);
