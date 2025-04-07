@@ -2,7 +2,7 @@
 import { PythonFunction } from "@/types/pythonTypes";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Code, FileFunction } from "lucide-react";
+import { Code, FileCode } from "lucide-react";
 
 interface FunctionListProps {
   functions: PythonFunction[];
@@ -29,7 +29,7 @@ const FunctionList = ({
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <FileFunction className="h-5 w-5 text-blue-600" />
+            <FileCode className="h-5 w-5 text-blue-600" />
             Functions
           </CardTitle>
         </CardHeader>
@@ -46,7 +46,7 @@ const FunctionList = ({
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          <FileFunction className="h-5 w-5 text-blue-600" />
+          <FileCode className="h-5 w-5 text-blue-600" />
           Functions ({functions.length})
         </CardTitle>
       </CardHeader>
