@@ -1,178 +1,143 @@
 
 import { saveAs } from 'file-saver';
+import * as docx from 'docx';
 import { PythonFunction } from '@/types/pythonTypes';
-import DocumentationGenerator, { Documentation } from './documentationGenerator';
+import { Documentation } from '@/utils/documentation/types';
 
-export const downloadAsWord = async (
-  pythonFunction: PythonFunction,
-  documentation: Documentation
-) => {
-  try {
-    // Dynamically import the docx library
-    const docx = await import('docx');
-    
-    // Define numbering for steps using the correct LevelFormat enum
-    const numbering = {
-      reference: "steps-numbering",
-      levels: [
-        {
-          level: 0,
-          format: docx.LevelFormat.DECIMAL,
-          text: "%1.",
-          alignment: docx.AlignmentType.START,
-          style: {
-            run: { bold: true }
-          }
-        }
-      ]
-    };
-
-    // Create document with the appropriate structure
-    const doc = new docx.Document({
-      numbering: {
-        config: [numbering]
-      },
-      sections: [{
-        properties: {},
-        children: [
+export function downloadAsWord(pythonFunction: PythonFunction, documentation: Documentation): void {
+  // Create a new document
+  const doc = new docx.Document({
+    sections: [{
+      properties: {},
+      children: [
+        new docx.Paragraph({
+          text: documentation.title,
+          heading: docx.HeadingLevel.HEADING_1,
+          spacing: {
+            after: 200,
+          },
+        }),
+        new docx.Paragraph({
+          text: documentation.description,
+          spacing: {
+            after: 200,
+          },
+        }),
+        new docx.Paragraph({
+          text: "Functionality",
+          heading: docx.HeadingLevel.HEADING_2,
+          spacing: {
+            after: 200,
+          },
+        }),
+        ...documentation.functionality.map(item => 
           new docx.Paragraph({
-            text: documentation.title,
-            heading: docx.HeadingLevel.HEADING_1,
-            spacing: { after: 200 }
-          }),
-          
-          new docx.Paragraph({
-            children: [new docx.TextRun(documentation.description)],
-            spacing: { after: 200 }
-          }),
-
-          // Functionality section
-          new docx.Paragraph({
-            text: "Functionality",
-            heading: docx.HeadingLevel.HEADING_2,
-            spacing: { after: 200 }
-          }),
-          
-          ...documentation.functionality.map(
-            (item) =>
-              new docx.Paragraph({
-                text: item,
-                bullet: { level: 0 },
-                spacing: { after: 100 }
-              })
-          ),
-
-          // Parameters section
-          new docx.Paragraph({
-            text: "Parameters",
-            heading: docx.HeadingLevel.HEADING_2,
-            spacing: { after: 200 }
-          }),
-          
-          new docx.Table({
-            rows: [
-              new docx.TableRow({
-                children: [
-                  new docx.TableCell({
-                    children: [new docx.Paragraph("Name")],
-                    shading: { fill: "D3D3D3" }
-                  }),
-                  new docx.TableCell({
-                    children: [new docx.Paragraph("Type")],
-                    shading: { fill: "D3D3D3" }
-                  }),
-                  new docx.TableCell({
-                    children: [new docx.Paragraph("Description")],
-                    shading: { fill: "D3D3D3" }
-                  })
-                ]
-              }),
-              ...documentation.parameters.map(param => 
-                new docx.TableRow({
-                  children: [
-                    new docx.TableCell({
-                      children: [
-                        new docx.Paragraph({
-                          children: [
-                            new docx.TextRun({
-                              text: param.name,
-                              font: "Consolas"
-                            })
-                          ]
-                        })
-                      ]
-                    }),
-                    new docx.TableCell({
-                      children: [
-                        new docx.Paragraph({
-                          children: [
-                            new docx.TextRun({
-                              text: param.type || "Any",
-                              font: "Consolas",
-                              color: "666666"
-                            })
-                          ]
-                        })
-                      ]
-                    }),
-                    new docx.TableCell({
-                      children: [new docx.Paragraph(param.description)]
-                    })
-                  ]
-                })
-              )
-            ],
-            width: {
-              size: 100,
-              type: docx.WidthType.PERCENTAGE
-            }
-          }),
-
-          // Steps section
-          new docx.Paragraph({
-            text: "Processing Steps",
-            heading: docx.HeadingLevel.HEADING_2,
-            spacing: { after: 200 }
-          }),
-          
-          ...documentation.steps.map(
-            (step, index) =>
-              new docx.Paragraph({
-                text: step,
-                numbering: {
-                  reference: "steps-numbering",
-                  level: 0
-                },
-                spacing: { after: 100 }
-              })
-          ),
-
-          // Code section
-          new docx.Paragraph({
-            text: "Source Code",
-            heading: docx.HeadingLevel.HEADING_2,
-            spacing: { after: 200 }
-          }),
-          
-          new docx.Paragraph({
-            children: [
-              new docx.TextRun({
-                text: pythonFunction.code,
-                font: "Consolas",
-                size: 20
-              })
-            ],
-            spacing: { after: 200 }
+            text: item,
+            bullet: {
+              level: 0,
+            },
+            spacing: {
+              after: 100,
+            },
           })
-        ]
-      }]
-    });
+        ),
+        new docx.Paragraph({
+          text: "Parameters",
+          heading: docx.HeadingLevel.HEADING_2,
+          spacing: {
+            after: 200,
+            before: 200,
+          },
+        }),
+        ...documentation.parameters.map(param => 
+          new docx.Paragraph({
+            text: `${param.name} (${param.type || "Any"}): ${param.description}`,
+            bullet: {
+              level: 0,
+            },
+            spacing: {
+              after: 100,
+            },
+          })
+        ),
+        new docx.Paragraph({
+          text: "Processing Steps",
+          heading: docx.HeadingLevel.HEADING_2,
+          spacing: {
+            after: 200,
+            before: 200,
+          },
+        }),
+        ...documentation.steps.map((step, index) => 
+          new docx.Paragraph({
+            text: step,
+            numbering: {
+              reference: "my-numbering",
+              level: 0,
+            },
+            spacing: {
+              after: 100,
+            },
+          })
+        ),
+        new docx.Paragraph({
+          text: "Source Code",
+          heading: docx.HeadingLevel.HEADING_2,
+          spacing: {
+            after: 200,
+            before: 200,
+          },
+        }),
+        new docx.Paragraph({
+          text: pythonFunction.code,
+          style: "CodeBlock",
+          spacing: {
+            after: 200,
+          },
+        }),
+      ],
+    }],
+    numbering: {
+      config: [{
+        reference: "my-numbering",
+        levels: [
+          {
+            level: 0,
+            format: docx.LevelFormat.DECIMAL,
+            text: "%1.",
+            alignment: docx.AlignmentType.START,
+            style: {
+              run: {
+                bold: true,
+              },
+            },
+          },
+        ],
+      }],
+    },
+    styles: {
+      paragraphStyles: [
+        {
+          id: "CodeBlock",
+          name: "Code Block",
+          basedOn: "Normal",
+          run: {
+            font: "Courier New",
+            size: 20,
+          },
+          paragraph: {
+            spacing: {
+              line: 360,
+            },
+          },
+        },
+      ],
+    },
+  });
 
-    // Generate the document as a blob and save it
-    const blob = await docx.Packer.toBlob(doc);
-    saveAs(blob, `${pythonFunction.name}_documentation.docx`);
-  } catch (error) {
-    console.error("Error generating Word document:", error);
-    throw error;
-  }
-};
+  // Create a blob from the document
+  docx.Packer.toBlob(doc).then(blob => {
+    // Save the blob as a file
+    saveAs(blob, `${pythonFunction.name}.docx`);
+  });
+}

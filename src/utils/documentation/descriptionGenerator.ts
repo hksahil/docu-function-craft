@@ -1,19 +1,16 @@
 
 import { PythonFunction } from "@/types/pythonTypes";
 
-export function generateDescription(func: PythonFunction): string {
-  if (func.docstring) {
-    return func.docstring;
+export function generateDescription(pythonFunction: PythonFunction): string {
+  const docstring = pythonFunction.docstring || "";
+  
+  if (docstring) {
+    // Extract the first paragraph from the docstring as the description
+    const firstParagraph = docstring.split('\n\n')[0].trim();
+    return firstParagraph || `Function for ${pythonFunction.name.replace(/_/g, ' ')}`;
   }
   
-  const nameWords = func.name.split('_');
-  
-  // Analyze function name to determine purpose
-  const actionWords = ['get', 'fetch', 'parse', 'process', 'format', 'convert', 'validate', 'calculate', 'create'];
-  const action = nameWords.find(word => actionWords.includes(word)) || nameWords[0];
-  
-  const objectWords = nameWords.filter(word => word !== action);
-  const objectPhrase = objectWords.join(' ');
-  
-  return `This function ${action}s ${objectPhrase} and performs operations based on the provided parameters.`;
+  // Generate a generic description if no docstring is available
+  const formattedName = pythonFunction.name.replace(/_/g, ' ');
+  return `A Python function named ${formattedName} that processes the given inputs and returns results based on the specified parameters.`;
 }
