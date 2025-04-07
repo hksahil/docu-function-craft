@@ -1,0 +1,46 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .prose {
+    @apply text-gray-800;
+  }
+  
+  .prose h1 {
+    @apply text-2xl font-bold mb-4 text-slate-900;
+  }
+  
+  .prose h2 {
+    @apply text-xl font-semibold mt-6 mb-3 text-slate-800 border-b pb-1;
+  }
+  
+  .prose p {
+    @apply mb-4;
+  }
+  
+  .prose ul {
+    @apply list-disc pl-6 mb-4 space-y-1;
+  }
+  
+  .prose ol {
+    @apply list-decimal pl-6 mb-4 space-y-1;
+  }
+  
+  .prose code {
+    @apply bg-slate-100 px-1 py-0.5 rounded font-mono text-sm;
+  }
+  
+  .prose table {
+    @apply w-full border-collapse mb-4;
+  }
+  
+  .prose th {
+    @apply bg-slate-100 border p-2 text-left;
+  }
+  
+  .prose td {
+    @apply border p-2;
+  }
+}
