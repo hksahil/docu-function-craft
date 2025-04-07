@@ -13,7 +13,7 @@ class DocumentationGenerator {
     const title = generateTitle(pythonFunction.name);
     const description = generateDescription(pythonFunction);
     const functionality = analyzeFunctionality(pythonFunction);
-    const parameters = analyzeParameters(pythonFunction.parameters);
+    const parameters = analyzeParameters(pythonFunction.parameters, pythonFunction);
     const steps = generateSteps(pythonFunction);
     const returns = analyzeReturns(pythonFunction);
 

@@ -81,7 +81,7 @@ export function downloadAsWord(pythonFunctions: PythonFunction[], selectedFuncti
         }),
         ...documentation.steps.map((step, index) => 
           new docx.Paragraph({
-            text: `${index + 1}. ${step}`,
+            text: `${step}`,
             spacing: {
               after: 100,
             },
@@ -122,14 +122,6 @@ export function downloadAsWord(pythonFunctions: PythonFunction[], selectedFuncti
           text: "",
           spacing: {
             after: 400,
-          },
-          border: {
-            bottom: {
-              color: "999999",
-              space: 1,
-              style: docx.BorderStyle.SINGLE,
-              size: 6,
-            },
           },
         }),
       ],

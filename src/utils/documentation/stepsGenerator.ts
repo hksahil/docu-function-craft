@@ -5,64 +5,71 @@ export function generateSteps(func: PythonFunction): string[] {
   const code = func.code;
   const lines = code.split('\n').map(line => line.trim()).filter(line => line);
   
-  // Skip the function definition line
-  const codeLines = lines.slice(1);
+  // Skip the function definition line and any docstring
+  let codeLines: string[] = [];
+  let inDocstring = false;
+  let docstringEnded = false;
+  
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Skip docstring
+    if (!docstringEnded && !inDocstring && (line.startsWith('"""') || line.startsWith("'''"))) {
+      inDocstring = true;
+      if (line.endsWith('"""') || line.endsWith("'''")) {
+        inDocstring = false;
+        docstringEnded = true;
+      }
+      continue;
+    }
+    
+    if (inDocstring) {
+      if (line.endsWith('"""') || line.endsWith("'''")) {
+        inDocstring = false;
+        docstringEnded = true;
+      }
+      continue;
+    }
+    
+    codeLines.push(line);
+  }
   
   const steps: string[] = [];
   
-  // Analyze the code structure to identify logical steps
-  let currentStep = '';
-  let stepCount = 1;
-  
-  // Simple heuristic: look for comment lines or significant code patterns
+  // Extract comments as steps
   for (let i = 0; i < codeLines.length; i++) {
     const line = codeLines[i];
     
     // Check for comments that might indicate steps
-    if (line.startsWith('#')) {
-      if (currentStep) {
-        steps.push(`${currentStep}`);
-        stepCount++;
-        currentStep = '';
+    if (line.includes('#')) {
+      const commentPart = line.split('#')[1].trim();
+      if (commentPart && commentPart.length > 3) { // Ensure comment has some meaningful content
+        steps.push(commentPart);
       }
-      currentStep = line.substring(1).trim();
-      continue;
     }
+  }
+  
+  // If not enough steps from comments, analyze code structure
+  if (steps.length < 2) {
+    let currentBlock = '';
     
-    // Check for significant code patterns
-    if (line.startsWith('for ') || line.startsWith('while ')) {
-      if (currentStep) {
-        steps.push(`${currentStep}`);
-        stepCount++;
+    for (let i = 0; i < codeLines.length; i++) {
+      const line = codeLines[i];
+      
+      // Check for significant code patterns
+      if (line.startsWith('for ') || line.startsWith('while ')) {
+        steps.push(`Iterate through ${line.includes('for ') ? 'items' : 'conditions'} to process data.`);
+      } else if (line.startsWith('if ') && !line.startsWith('elif ') && !line.startsWith('else:')) {
+        steps.push('Evaluate conditions to determine processing path.');
+      } else if (line.startsWith('try:')) {
+        steps.push('Attempt operations with error handling.');
+      } else if (line.startsWith('return ')) {
+        steps.push('Return the processed results.');
       }
-      currentStep = `Iterate through ${line.includes('for ') ? 'items' : 'conditions'} to process data.`;
-    } else if (line.startsWith('if ') && !line.startsWith('elif ') && !line.startsWith('else:')) {
-      if (currentStep) {
-        steps.push(`${currentStep}`);
-        stepCount++;
-      }
-      currentStep = 'Evaluate conditions to determine processing path.';
-    } else if (line.startsWith('try:')) {
-      if (currentStep) {
-        steps.push(`${currentStep}`);
-        stepCount++;
-      }
-      currentStep = 'Attempt operations with error handling.';
-    } else if (line.startsWith('return ')) {
-      if (currentStep) {
-        steps.push(`${currentStep}`);
-        stepCount++;
-      }
-      currentStep = 'Return the processed results.';
     }
   }
   
-  // Add the last step if there is one
-  if (currentStep) {
-    steps.push(`${currentStep}`);
-  }
-  
-  // If we couldn't determine steps, create generic ones
+  // If we still couldn't determine meaningful steps, create generic ones
   if (steps.length === 0) {
     steps.push(`Initialize processing for ${func.name.replace(/_/g, ' ')}.`);
     

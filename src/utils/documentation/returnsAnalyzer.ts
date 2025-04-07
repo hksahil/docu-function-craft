@@ -2,6 +2,16 @@
 import { PythonFunction } from "@/types/pythonTypes";
 
 export function analyzeReturns(func: PythonFunction): string {
+  // Check if docstring has a Returns section
+  if (func.docstring) {
+    const returnsMatch = func.docstring.match(/Returns:([\s\S]*?)(?:\n\s*\n|\nExample:|\nRaises:|\nNotes:|\nYields:|$)/i);
+    
+    if (returnsMatch && returnsMatch[1]) {
+      return returnsMatch[1].trim();
+    }
+  }
+  
+  // If no returns info in docstring, analyze code
   const code = func.code;
   
   // Look for return statements in the code
