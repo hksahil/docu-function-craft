@@ -21,7 +21,7 @@ export function generateSteps(func: PythonFunction): string[] {
     // Check for comments that might indicate steps
     if (line.startsWith('#')) {
       if (currentStep) {
-        steps.push(`${stepCount}. ${currentStep}`);
+        steps.push(`${currentStep}`);
         stepCount++;
         currentStep = '';
       }
@@ -32,25 +32,25 @@ export function generateSteps(func: PythonFunction): string[] {
     // Check for significant code patterns
     if (line.startsWith('for ') || line.startsWith('while ')) {
       if (currentStep) {
-        steps.push(`${stepCount}. ${currentStep}`);
+        steps.push(`${currentStep}`);
         stepCount++;
       }
       currentStep = `Iterate through ${line.includes('for ') ? 'items' : 'conditions'} to process data.`;
     } else if (line.startsWith('if ') && !line.startsWith('elif ') && !line.startsWith('else:')) {
       if (currentStep) {
-        steps.push(`${stepCount}. ${currentStep}`);
+        steps.push(`${currentStep}`);
         stepCount++;
       }
       currentStep = 'Evaluate conditions to determine processing path.';
     } else if (line.startsWith('try:')) {
       if (currentStep) {
-        steps.push(`${stepCount}. ${currentStep}`);
+        steps.push(`${currentStep}`);
         stepCount++;
       }
       currentStep = 'Attempt operations with error handling.';
     } else if (line.startsWith('return ')) {
       if (currentStep) {
-        steps.push(`${stepCount}. ${currentStep}`);
+        steps.push(`${currentStep}`);
         stepCount++;
       }
       currentStep = 'Return the processed results.';
@@ -59,18 +59,18 @@ export function generateSteps(func: PythonFunction): string[] {
   
   // Add the last step if there is one
   if (currentStep) {
-    steps.push(`${stepCount}. ${currentStep}`);
+    steps.push(`${currentStep}`);
   }
   
   // If we couldn't determine steps, create generic ones
   if (steps.length === 0) {
-    steps.push(`1. Initialize processing for ${func.name.replace(/_/g, ' ')}.`);
+    steps.push(`Initialize processing for ${func.name.replace(/_/g, ' ')}.`);
     
     if (func.parameters.length > 0) {
-      steps.push(`2. Process input parameters: ${func.parameters.map(p => p.name).join(', ')}.`);
+      steps.push(`Process input parameters: ${func.parameters.map(p => p.name).join(', ')}.`);
     }
     
-    steps.push(`${func.parameters.length > 0 ? 3 : 2}. Perform core functionality and return results.`);
+    steps.push(`Perform core functionality and return results.`);
   }
   
   return steps;

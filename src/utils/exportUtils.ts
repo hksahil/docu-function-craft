@@ -15,6 +15,9 @@ export function downloadAsWord(pythonFunctions: PythonFunction[], selectedFuncti
   const sections = allFunctions.map(pythonFunction => {
     const documentation = DocumentationGenerator.generateDocumentation(pythonFunction);
     
+    // Extract just the function signature
+    const functionSignature = extractFunctionSignature(pythonFunction.code);
+    
     return {
       properties: {},
       children: [
@@ -78,16 +81,26 @@ export function downloadAsWord(pythonFunctions: PythonFunction[], selectedFuncti
         }),
         ...documentation.steps.map((step, index) => 
           new docx.Paragraph({
-            text: step,
-            numbering: {
-              reference: "my-numbering",
-              level: 0,
-            },
+            text: `${index + 1}. ${step}`,
             spacing: {
               after: 100,
             },
           })
         ),
+        new docx.Paragraph({
+          text: "Returns",
+          heading: docx.HeadingLevel.HEADING_2,
+          spacing: {
+            after: 200,
+            before: 200,
+          },
+        }),
+        new docx.Paragraph({
+          text: documentation.returns,
+          spacing: {
+            after: 200,
+          },
+        }),
         new docx.Paragraph({
           text: "Source Code",
           heading: docx.HeadingLevel.HEADING_2,
@@ -96,9 +109,9 @@ export function downloadAsWord(pythonFunctions: PythonFunction[], selectedFuncti
             before: 200,
           },
         }),
-        // Format code properly as monospaced text
+        // Only show the function signature
         new docx.Paragraph({
-          text: pythonFunction.code,
+          text: functionSignature,
           style: "CodeBlock",
           spacing: {
             after: 200,
@@ -169,4 +182,15 @@ export function downloadAsWord(pythonFunctions: PythonFunction[], selectedFuncti
     // Save the blob as a file with project name
     saveAs(blob, `python_documentation.docx`);
   });
+}
+
+// Helper function to extract just the function signature
+function extractFunctionSignature(code: string): string {
+  const lines = code.split('\n');
+  for (const line of lines) {
+    if (line.trim().startsWith('def ')) {
+      return line.trim();
+    }
+  }
+  return '';
 }

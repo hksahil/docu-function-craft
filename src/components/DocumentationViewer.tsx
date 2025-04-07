@@ -114,6 +114,9 @@ const DocumentationViewer = ({ pythonFunction, allFunctions }: DocumentationView
                 <li key={index}>{step}</li>
               ))}
             </ol>
+            
+            <h2>Returns</h2>
+            <p>{documentation.returns}</p>
           </div>
         </TabsContent>
 

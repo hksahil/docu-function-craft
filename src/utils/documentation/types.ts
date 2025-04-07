@@ -11,4 +11,5 @@ export interface Documentation {
   functionality: string[];
   parameters: DocumentationParameter[];
   steps: string[];
+  returns: string;
 }

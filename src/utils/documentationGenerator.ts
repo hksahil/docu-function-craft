@@ -6,6 +6,7 @@ import { generateDescription } from "@/utils/documentation/descriptionGenerator"
 import { analyzeFunctionality } from "@/utils/documentation/functionalityAnalyzer";
 import { analyzeParameters } from "@/utils/documentation/parameterAnalyzer";
 import { generateSteps } from "@/utils/documentation/stepsGenerator";
+import { analyzeReturns } from "@/utils/documentation/returnsAnalyzer";
 
 class DocumentationGenerator {
   static generateDocumentation(pythonFunction: PythonFunction): Documentation {
@@ -14,6 +15,7 @@ class DocumentationGenerator {
     const functionality = analyzeFunctionality(pythonFunction);
     const parameters = analyzeParameters(pythonFunction.parameters);
     const steps = generateSteps(pythonFunction);
+    const returns = analyzeReturns(pythonFunction);
 
     return {
       title,
@@ -21,6 +23,7 @@ class DocumentationGenerator {
       functionality,
       parameters,
       steps,
+      returns,
     };
   }
 }
