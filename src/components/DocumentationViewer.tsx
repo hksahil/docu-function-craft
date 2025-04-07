@@ -12,9 +12,10 @@ import { downloadAsWord } from "@/utils/exportUtils";
 
 interface DocumentationViewerProps {
   pythonFunction: PythonFunction | null;
+  allFunctions: PythonFunction[];
 }
 
-const DocumentationViewer = ({ pythonFunction }: DocumentationViewerProps) => {
+const DocumentationViewer = ({ pythonFunction, allFunctions }: DocumentationViewerProps) => {
   const [activeTab, setActiveTab] = useState("documentation");
   const { toast } = useToast();
 
@@ -35,10 +36,10 @@ const DocumentationViewer = ({ pythonFunction }: DocumentationViewerProps) => {
   const documentation = DocumentationGenerator.generateDocumentation(pythonFunction);
 
   const handleDownloadWord = () => {
-    downloadAsWord(pythonFunction, documentation);
+    downloadAsWord(allFunctions, pythonFunction);
     toast({
       title: "Documentation downloaded",
-      description: `${pythonFunction.name}.docx has been downloaded`,
+      description: `Complete Python documentation has been downloaded`,
     });
   };
 
@@ -55,7 +56,7 @@ const DocumentationViewer = ({ pythonFunction }: DocumentationViewerProps) => {
           onClick={handleDownloadWord}
         >
           <Download className="h-4 w-4" />
-          Download as Word
+          Download Documentation
         </Button>
       </div>
 

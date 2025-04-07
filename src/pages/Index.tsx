@@ -38,7 +38,10 @@ const Index = () => {
             />
           </div>
           <div className="md:col-span-9">
-            <DocumentationViewer pythonFunction={selectedFunction} />
+            <DocumentationViewer 
+              pythonFunction={selectedFunction}
+              allFunctions={pythonFunctions} 
+            />
           </div>
         </div>
       </main>

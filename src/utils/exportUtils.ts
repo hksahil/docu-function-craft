@@ -3,11 +3,19 @@ import { saveAs } from 'file-saver';
 import * as docx from 'docx';
 import { PythonFunction } from '@/types/pythonTypes';
 import { Documentation } from '@/utils/documentation/types';
+import DocumentationGenerator from '@/utils/documentationGenerator';
 
-export function downloadAsWord(pythonFunction: PythonFunction, documentation: Documentation): void {
-  // Create a new document
-  const doc = new docx.Document({
-    sections: [{
+export function downloadAsWord(pythonFunctions: PythonFunction[], selectedFunction: PythonFunction | null): void {
+  // Create a document with all functions, but start with the selected one if any
+  const allFunctions = selectedFunction 
+    ? [selectedFunction, ...pythonFunctions.filter(f => f.id !== selectedFunction.id)]
+    : pythonFunctions;
+    
+  // Generate sections for all functions
+  const sections = allFunctions.map(pythonFunction => {
+    const documentation = DocumentationGenerator.generateDocumentation(pythonFunction);
+    
+    return {
       properties: {},
       children: [
         new docx.Paragraph({
@@ -88,6 +96,7 @@ export function downloadAsWord(pythonFunction: PythonFunction, documentation: Do
             before: 200,
           },
         }),
+        // Format code properly as monospaced text
         new docx.Paragraph({
           text: pythonFunction.code,
           style: "CodeBlock",
@@ -95,8 +104,28 @@ export function downloadAsWord(pythonFunction: PythonFunction, documentation: Do
             after: 200,
           },
         }),
+        // Add a separator between functions (except for the last one)
+        new docx.Paragraph({
+          text: "",
+          spacing: {
+            after: 400,
+          },
+          border: {
+            bottom: {
+              color: "999999",
+              space: 1,
+              style: docx.BorderStyle.SINGLE,
+              size: 6,
+            },
+          },
+        }),
       ],
-    }],
+    };
+  });
+
+  // Create a new document with all sections
+  const doc = new docx.Document({
+    sections,
     numbering: {
       config: [{
         reference: "my-numbering",
@@ -129,6 +158,36 @@ export function downloadAsWord(pythonFunction: PythonFunction, documentation: Do
             spacing: {
               line: 360,
             },
+            border: {
+              top: {
+                color: "EEEEEE",
+                space: 8,
+                style: docx.BorderStyle.SINGLE,
+                size: 8,
+              },
+              bottom: {
+                color: "EEEEEE",
+                space: 8,
+                style: docx.BorderStyle.SINGLE,
+                size: 8,
+              },
+              left: {
+                color: "EEEEEE",
+                space: 8,
+                style: docx.BorderStyle.SINGLE,
+                size: 8,
+              },
+              right: {
+                color: "EEEEEE",
+                space: 8,
+                style: docx.BorderStyle.SINGLE,
+                size: 8,
+              },
+            },
+            shading: {
+              type: docx.ShadingType.SOLID,
+              color: "F8F8F8",
+            },
           },
         },
       ],
@@ -137,7 +196,7 @@ export function downloadAsWord(pythonFunction: PythonFunction, documentation: Do
 
   // Create a blob from the document
   docx.Packer.toBlob(doc).then(blob => {
-    // Save the blob as a file
-    saveAs(blob, `${pythonFunction.name}.docx`);
+    // Save the blob as a file with project name
+    saveAs(blob, `python_documentation.docx`);
   });
 }
